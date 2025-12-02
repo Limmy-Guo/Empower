@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Empower — 多页连贯演示</title>
+  <style>
+    :root { --green:#3CB371; --yellow:#FFD700; --bg:#f5f5f5; }
+    html,body { height:100%; margin:0; background:#1a1a1a; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; }
+    #stage { min-height:100%; width:100%; max-width:430px; margin:0 auto; overflow:auto; -webkit-overflow-scrolling:touch; background:#fff; box-shadow:0 0 50px rgba(0,0,0,.3); position:relative; }
+    .hidden { display:none; }
+  </style>
+</head>
+<body>
+  <main id="stage"></main>
+
+  <!-- ========== Info Input ========== -->
+  <template id="tpl-info">
+    <style>
+      * { box-sizing:border-box; }
+      body.__scope-info { background:#fff; }
+      .mobile-header { background:linear-gradient(135deg, var(--green), #2E8B57); color:#fff; padding:50px 20px 30px; text-align:center; }
+      .mobile-header h2 { margin:0; font-size:28px; font-weight:700; }
+      .mobile-header p { margin:8px 0 0; opacity:.9; font-size:15px; }
+      .mobile-frame { padding:20px; background:#fff; }
+      label { display:block; font-weight:600; margin-top:18px; color:#333; font-size:14px; }
+      input, select { width:100%; padding:14px; border:1px solid #e0e0e0; border-radius:12px; font-size:15px; margin-top:6px; background:#fafafa; transition:.2s; }
+      input:focus, select:focus { outline:none; border-color:var(--green); background:#fff; }
+      .photo-upload { margin-top:6px; }
+      .photo-upload button { padding:12px 20px; background:var(--green); color:#fff; border:0; border-radius:12px; cursor:pointer; font-weight:600; width:100%; }
+      .interests-group { margin-top:20px; }
+      .interest-row { display:flex; align-items:center; gap:10px; margin-bottom:12px; }
+      .interest-row select { flex:1; }
+      .interest-row button { background:#ff6b6b; border:0; color:#fff; font-weight:700; padding:12px 14px; border-radius:12px; cursor:pointer; font-size:18px; line-height:1; }
+      .add-btn { margin-top:12px; background:#f0f0f0; color:#333; border:0; padding:12px; border-radius:12px; cursor:pointer; width:100%; font-weight:600; }
+      .options-toggle { margin-top:28px; }
+      .options-toggle label { margin-bottom:12px; }
+      .toggle-option { background:#f8f8f8; color:#666; padding:16px; margin-bottom:12px; border-radius:12px; text-align:center; font-weight:600; cursor:pointer; transition:.2s; border:2px solid transparent; }
+      .toggle-option.active { background:linear-gradient(135deg, var(--green), #2E8B57); color:#fff; border-color:var(--green); }
+      .submit-btn { width:100%; background:linear-gradient(135deg, var(--green), #2E8B57); color:#fff; padding:16px; font-size:17px; font-weight:700; border:0; border-radius:12px; margin-top:30px; cursor:pointer; box-shadow:0 4px 12px rgba(60,179,113,.3); }
+    </style>
+    <div class="mobile-header">
+      <h2>Welcome to Empower</h2>
+      <p>Let's set up your profile</p>
+    </div>
+    <div class="mobile-frame">
+      <label>User Name</label><input type="text" id="input-name" placeholder="Enter your name" />
+      <label>Photo</label><div class="photo-upload"><button type="button">📷 Upload Photo</button></div>
+      <label>Location</label><input type="text" id="input-location" placeholder="City, State" />
+      <label>Age</label><input type="number" id="input-age" placeholder="e.g., 28" />
+      <div class="interests-group">
+        <label>Choose Your Interests</label>
+        <div id="interests-container">
+          <div class="interest-row">
+            <select>
+              <option>Select an option</option>
+              <option>Hiking</option>
+              <option>Yoga</option>
+              <option>Pilates</option>
+              <option>Music</option>
+              <option>Concerts</option>
+              <option>Board Games</option>
+              <option>Cooking</option>
+              <option>Wine Tasting</option>
+              <option>Photography</option>
+              <option>Meditation</option>
+              <option>Dancing</option>
+              <option>Book Club</option>
+              <option>Volunteering</option>
+              <option>Movies</option>
+              <option>Coding</option>
+              <option>Sports</option>
+              <option>Parties</option>
+            </select>
+            <button type="button" class="remove-interest">-</button>
+          </div>
+        </div>
+        <button class="add-btn" type="button" id="add-interest">+</button>
+      </div>
+      <div class="options-toggle">
+        <label>What are you looking for?</label>
+        <div class="toggle-option active">Organizations</div>
+        <div class="toggle-option">Activities</div>
+        <div class="toggle-option">Others</div>
+      </div>
+      <button class="submit-btn" type="button" id="info-submit">Submit</button>
+    </div>
+  </template>
+
+  <!-- ========== Profile ========== -->
+  <template id="tpl-profile">
+    <style>
+      body.__scope-profile { background:#f5f5f5; }
+      .header { background:linear-gradient(135deg, var(--green), #2E8B57); color:#fff; text-align:center; padding:40px 20px 30px; position:relative; }
+      .header img { width:100px;height:100px;border-radius:50%;border:4px solid #fff;margin-top:10px; box-shadow:0 4px 12px rgba(0,0,0,.2); }
+      .name { font-size:24px; font-weight:700; margin-top:12px; }
+      .role { font-size:15px; opacity:.9; margin-top:4px; }
+      .section { padding:20px; background:#fff; margin:12px 16px; border-radius:16px; box-shadow:0 2px 8px rgba(0,0,0,.06); }
+      .section h3 { margin:0 0 12px; color:var(--green); font-size:16px; font-weight:700; }
+      .section p { margin:0; color:#666; line-height:1.6; }
+      .tags { display:flex; flex-wrap:wrap; gap:8px; }
+      .tag { background:linear-gradient(135deg, #e8f5e9, #c8e6c9); color:var(--green); padding:8px 16px; border-radius:20px; font-size:13px; font-weight:600; }
+      .bottom-nav { position:fixed; bottom:0; left:0; right:0; max-width:430px; margin:0 auto; height:70px; background:#fff; border-top:1px solid #e0e0e0;
+        display:flex; justify-content:space-around; align-items:center; box-shadow:0 -2px 10px rgba(0,0,0,.08); }
+      .bottom-nav div { text-align:center; font-size:11px; color:#999; cursor:pointer; transition:.2s; padding:8px 12px; border-radius:8px; }
+      .bottom-nav div:hover { background:#f5f5f5; color:var(--green); }
+      .bottom-nav span { display:block; font-size:24px; margin-bottom:4px; }
+    </style>
+    <div class="header">
+      <img src="https://i.imgur.com/gwBxmYB.png"><div class="name" id="profile-name">User</div>
+      <div class="role" id="profile-role">Location | Age</div>
+    </div>
+    <div style="padding-bottom:90px;">
+      <div class="section"><h3>Looking For</h3><p id="profile-looking"></p></div>
+      <div class="section"><h3>Interests</h3><div class="tags" id="profile-interests"></div></div>
+      <div class="section"><h3>Bio</h3><p id="profile-bio"></p></div>
+    </div>
+    <div class="bottom-nav">
+      <div data-link="info"><span>🏠</span>Home</div>
+      <div data-link="events"><span>📅</span>Events</div>
+      <div data-link="chats"><span>💬</span>Chats</div>
+      <div data-link="recommend"><span>⭐</span>Recommendations</div>
+      <div data-link="profile"><span>👤</span>Profile</div>
+    </div>
+  </template>
+
+  <!-- ========== Events ========== -->
+  <template id="tpl-events">
+    <style>
+      body.__scope-events { background:#f5f5f5; }
+      .topbar { display:flex; align-items:center; justify-content:space-between;
+        background:linear-gradient(135deg, var(--green), #2E8B57);
+        color:#fff; padding:50px 20px 16px; font-size:20px; font-weight:700; }
+      .topbar span { font-size:22px; cursor:pointer; }
+      .filter-bar { display:flex; gap:8px; padding:12px 16px; background:#fff; box-shadow:0 2px 8px rgba(0,0,0,.06); flex-wrap:wrap; }
+      .filter-bar select { flex:1; min-width:100px; padding:10px 12px; border:1px solid #e0e0e0; border-radius:10px; font-size:14px; background:#fafafa; }
+      .filter-result { padding:12px 16px; font-size:13px; color:#666; font-weight:600; }
+      .card { background:#fff; margin:12px 16px; padding:16px; border-radius:16px;
+        display:flex; align-items:center; gap:14px; box-shadow:0 2px 8px rgba(0,0,0,.06); cursor:pointer; transition:.2s; }
+      .card:active { transform:scale(0.98); }
+      .icon { width:50px;height:50px;border-radius:14px; display:flex;align-items:center;justify-content:center; color:#fff; font-size:24px; flex-shrink:0; }
+      .text h4 { margin:0; font-size:16px; font-weight:700; color:#333; }
+      .text p { margin:4px 0 0; font-size:14px; color:#666; }
+      .meta { font-size:12px; color:#999; margin-top:8px; }
+      .nav { position:fixed; bottom:0; left:0; right:0; max-width:430px; margin:0 auto; height:70px; background:#fff; border-top:1px solid #e0e0e0;
+        display:flex; justify-content:space-around; align-items:center; box-shadow:0 -2px 10px rgba(0,0,0,.08); }
+      .nav-item { font-size:11px; text-align:center; color:#999; cursor:pointer; padding:8px 12px; border-radius:8px; transition:.2s; }
+      .nav-item:hover { background:#f5f5f5; color:var(--green); }
+      .nav-item span { display:block; font-size:24px; margin-bottom:4px; }
+    </style>
+    <div class="topbar">Empower Events<span>🔍</span></div>
+    <div class="filter-bar">
+      <select id="filter-time"><option value="">Time</option><option>Today</option><option>This Week</option><option>This Month</option></select>
+      <select id="filter-type"><option value="">Type</option><option>Sports</option><option>Music</option><option>Study</option><option>Food</option><option>Volunteering</option><option>Entertainment</option><option>Hobby</option></select>
+      <select id="filter-location"><option value="">Location</option><option>Online</option><option>NYC</option><option>LA</option><option>Chicago</option></select>
+    </div>
+    <div class="filter-result" id="filter-result">Showing all events</div>
+    <div id="events-list" style="padding-bottom:90px;"></div>
+    <div class="nav">
+      <div class="nav-item" data-nav="info"><span>🏠</span>Home</div>
+      <div class="nav-item" data-nav="events"><span>📅</span>Events</div>
+      <div class="nav-item" data-nav="chats"><span>💬</span>Chats</div>
+      <div class="nav-item" data-nav="recommend"><span>⭐</span>Recommendations</div>
+      <div class="nav-item" data-nav="profile"><span>👤</span>Profile</div>
+    </div>
+  </template>
+
+  <!-- ========== Recommendations ========== -->
+  <template id="tpl-recommend">
+    <style>
+      body.__scope-recommend { background:#f5f5f5; }
+      .rec-header { background:linear-gradient(135deg, var(--green), #2E8B57); color:#fff; padding:50px 20px 20px; text-align:center; }
+      .rec-header h2 { margin:0; font-size:24px; font-weight:700; }
+      .rec-header p { margin:8px 0 0; opacity:.9; font-size:15px; }
+      .container { padding:16px 16px 90px; }
+      .card { display:flex; align-items:center; margin:12px 0; padding:20px; border-radius:16px; background:#fff;
+        box-shadow:0 2px 8px rgba(0,0,0,.06); cursor:pointer; transition:.2s; position:relative; }
+      .card:active { transform:scale(0.98); }
+      .icon { flex-shrink:0; width:70px; height:70px; border-radius:16px; background:linear-gradient(135deg, var(--yellow), #FFC700); display:flex; align-items:center; justify-content:center; font-size:32px; margin-right:16px; box-shadow:0 4px 12px rgba(255,215,0,.3); }
+      .card-content h3 { margin:0 0 6px; color:#333; font-size:17px; font-weight:700; }
+      .card-content p { margin:0 0 8px; color:#666; font-size:14px; line-height:1.5; }
+      .card-content .meta { margin:0; font-size:12px; color:#999; }
+      .match-score { position:absolute; top:20px; right:20px; background:linear-gradient(135deg, var(--green), #2E8B57); color:#fff; padding:6px 12px; border-radius:20px; font-weight:700; font-size:13px; box-shadow:0 2px 6px rgba(60,179,113,.3); }
+      .bottom-nav { position:fixed; bottom:0; left:0; right:0; max-width:430px; margin:0 auto; height:70px; background:#fff; border-top:1px solid #e0e0e0;
+        display:flex; justify-content:space-around; align-items:center; box-shadow:0 -2px 10px rgba(0,0,0,.08); }
+      .bottom-nav a { color:#999; font-size:11px; text-align:center; cursor:pointer; text-decoration:none; padding:8px 12px; border-radius:8px; transition:.2s; }
+      .bottom-nav a:hover { background:#f5f5f5; color:var(--green); }
+      .bottom-nav span { display:block; font-size:24px; margin-bottom:4px; }
+    </style>
+    <div class="rec-header">
+      <h2>Your Recommendations</h2>
+      <p>Personalized activities based on your interests</p>
+    </div>
+    <div class="container">
+      <div id="recommendations-list"></div>
+    </div>
+    <div class="bottom-nav">
+      <a data-nav="info"><span>🏠</span>Home</a>
+      <a data-nav="events"><span>📅</span>Events</a>
+      <a data-nav="chats"><span>💬</span>Chats</a>
+      <a data-nav="recommend"><span>⭐</span>Recommendations</a>
+      <a data-nav="profile"><span>👤</span>Profile</a>
+    </div>
+  </template>
+
+  <!-- ========== Wellness ========== -->
+  <template id="tpl-wellness">
+    <style>
+      body.__scope-wellness { background:#f5f5f5; }
+      .top-bar { display:flex; align-items:center; justify-content:space-between;
+        padding:50px 20px 16px; background:linear-gradient(135deg, var(--green), #2E8B57); color:#fff; font-weight:700; font-size:18px; }
+      .top-bar span { cursor:pointer; }
+      .category-section { margin:20px 16px 90px; }
+      .category-section h3 { font-size:20px; color:#333; margin-bottom:16px; }
+      .grid { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; }
+      .item { text-align:center; padding:20px 10px; border-radius:16px; background:#fff; border:2px solid transparent; box-shadow:0 2px 8px rgba(0,0,0,.06); cursor:pointer; transition:.2s; font-size:14px; font-weight:600; color:#333; }
+      .item:active { transform:scale(0.95); border-color:var(--green); }
+      .bottom-nav { position:fixed; bottom:0; left:0; right:0; max-width:430px; margin:0 auto; height:70px; background:#fff; border-top:1px solid #e0e0e0;
+        display:flex; justify-content:space-around; align-items:center; box-shadow:0 -2px 10px rgba(0,0,0,.08); }
+      .bottom-nav div { text-align:center; font-size:11px; color:#999; cursor:pointer; padding:8px 12px; border-radius:8px; transition:.2s; }
+      .bottom-nav div:hover { background:#f5f5f5; color:var(--green); }
+      .bottom-nav span { display:block; font-size:24px; margin-bottom:4px; }
+    </style>
+    <div class="top-bar"><span>&lt; Back</span><span>Empower</span><span>Finish</span></div>
+    <div class="category-section"><h3>Upcoming Events</h3>
+      <div class="grid">
+        <div class="item">🧘‍♀️ Yoga</div><div class="item">🎭 Broadway</div><div class="item">🎲 Board Games</div>
+        <div class="item">🎮 Gaming</div><div class="item">🍷 Food & Drinks</div><div class="item">🎶 Music</div>
+      </div>
+    </div>
+    <div class="bottom-nav">
+      <div data-nav="info"><span>🏠</span>Home</div>
+      <div data-nav="events"><span>📅</span>Events</div>
+      <div data-nav="chats"><span>💬</span>Chats</div>
+      <div data-nav="recommend"><span>⭐</span>Recommendations</div>
+      <div data-nav="profile"><span>👤</span>Profile</div>
+    </div>
+  </template>
+
+  <!-- ========== Chats Page ========== -->
+  <template id="tpl-chats">
+    <style>
+      body.__scope-chats { background:#f5f5f5; }
+      .topbar { display:flex; align-items:center; justify-content:space-between;
+        background:linear-gradient(135deg, var(--green), #2E8B57);
+        color:#fff; padding:50px 20px 16px; font-size:20px; font-weight:700; }
+      .topbar span { font-size:22px; }
+      .chat-list { padding:16px; margin-bottom:90px; }
+      .chat-item { background:#fff; margin:0 0 12px; padding:16px; border-radius:16px; display:flex; align-items:center; gap:14px; cursor:pointer; box-shadow:0 2px 8px rgba(0,0,0,.06); transition:.2s; }
+      .chat-item:active { transform:scale(0.98); }
+      .chat-avatar { width:56px; height:56px; border-radius:50%; background:linear-gradient(135deg, var(--yellow), #FFC700); display:flex; align-items:center; justify-content:center; font-size:28px; flex-shrink:0; box-shadow:0 2px 8px rgba(255,215,0,.3); }
+      .chat-info { flex:1; min-width:0; }
+      .chat-info h4 { margin:0 0 6px; font-size:16px; color:#333; font-weight:700; }
+      .chat-info p { margin:0; font-size:14px; color:#666; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+      .bottom-nav { position:fixed; bottom:0; left:0; right:0; max-width:430px; margin:0 auto; height:70px; background:#fff; border-top:1px solid #e0e0e0;
+        display:flex; justify-content:space-around; align-items:center; box-shadow:0 -2px 10px rgba(0,0,0,.08); }
+      .bottom-nav div { text-align:center; font-size:11px; color:#999; cursor:pointer; padding:8px 12px; border-radius:8px; transition:.2s; }
+      .bottom-nav div:hover { background:#f5f5f5; color:var(--green); }
+      .bottom-nav span { display:block; font-size:24px; margin-bottom:4px; }
+    </style>
+    <div class="topbar">Your Chats<span>✉️</span></div>
+    <div class="chat-list">
+      <div class="chat-item"><div class="chat-avatar">👤</div><div class="chat-info"><h4>Sarah Johnson</h4><p>See you at yoga tomorrow!</p></div></div>
+      <div class="chat-item"><div class="chat-avatar">👥</div><div class="chat-info"><h4>Hiking Group</h4><p>Meeting at 8am this Saturday</p></div></div>
+      <div class="chat-item"><div class="chat-avatar">🎵</div><div class="chat-info"><h4>Music Lovers Club</h4><p>Who's coming to the concert?</p></div></div>
+    </div>
+    <div class="bottom-nav">
+      <div data-nav="info"><span>🏠</span>Home</div>
+      <div data-nav="events"><span>📅</span>Events</div>
+      <div data-nav="chats"><span>💬</span>Chats</div>
+      <div data-nav="recommend"><span>⭐</span>Recommendations</div>
+      <div data-nav="profile"><span>👤</span>Profile</div>
+    </div>
+  </template>
+
+  <script>
+    const stage=document.getElementById('stage'); 
+    let userData={name:"",location:"",age:"",interests:[],looking:"Organizations"};
+
+    const eventsData=[
+      {title:"Morning Yoga",desc:"Relax and stretch with gentle morning flow",time:"Today",type:"Sports",location:"Online",icon:"🧘‍♀️",color:"var(--green)"},
+      {title:"Rock Concert",desc:"Live music show at Madison Square",time:"This Week",type:"Music",location:"NYC",icon:"🎶",color:"var(--yellow)"},
+      {title:"Study Group",desc:"Math revision and problem solving",time:"This Month",type:"Study",location:"LA",icon:"📚",color:"var(--green)"},
+      {title:"Cooking Class",desc:"Learn authentic Italian cooking",time:"This Week",type:"Food",location:"Chicago",icon:"🍳",color:"var(--yellow)"},
+      {title:"Community Clean Up",desc:"Help beautify our neighborhood",time:"Today",type:"Volunteering",location:"NYC",icon:"🤝",color:"var(--green)"},
+      {title:"JavaScript Workshop",desc:"Learn modern JS and React basics",time:"This Month",type:"Study",location:"Online",icon:"💻",color:"var(--yellow)"},
+      {title:"Photography Walk",desc:"Capture beautiful city night shots",time:"This Week",type:"Hobby",location:"Chicago",icon:"📸",color:"var(--green)"},
+      {title:"Mountain Hiking",desc:"Challenging trail adventure with views",time:"This Month",type:"Sports",location:"LA",icon:"🥾",color:"var(--yellow)"},
+      {title:"Movie Night",desc:"Classic film screening and discussion",time:"Today",type:"Entertainment",location:"NYC",icon:"🎬",color:"var(--green)"},
+      {title:"Pilates Class",desc:"Core strength and flexibility training",time:"This Week",type:"Sports",location:"Online",icon:"🤸‍♀️",color:"var(--green)"},
+      {title:"Wine Tasting",desc:"Explore wines from around the world",time:"This Week",type:"Food",location:"NYC",icon:"🍷",color:"var(--yellow)"},
+      {title:"Board Game Night",desc:"Strategy games and pizza",time:"Today",type:"Entertainment",location:"Chicago",icon:"🎲",color:"var(--green)"},
+      {title:"Meditation Circle",desc:"Guided mindfulness and relaxation",time:"This Week",type:"Sports",location:"Online",icon:"🧘",color:"var(--yellow)"},
+      {title:"Salsa Dancing",desc:"Learn Latin dance moves",time:"This Month",type:"Entertainment",location:"LA",icon:"💃",color:"var(--green)"},
+      {title:"Book Club",desc:"Discussing contemporary fiction",time:"This Week",type:"Hobby",location:"NYC",icon:"📖",color:"var(--yellow)"}
+    ];
+
+    function mountTemplate(tplId){
+      stage.innerHTML=""; 
+      stage.appendChild(document.getElementById(tplId).content.cloneNode(true));
+      document.body.className={ 'tpl-info':"__scope-info",'tpl-profile':"__scope-profile",'tpl-events':"__scope-events",'tpl-recommend':"__scope-recommend",'tpl-wellness':"__scope-wellness",'tpl-chats':"__scope-chats"}[tplId]||"";
+    }
+
+    function showPage(name){
+      switch(name){
+        case"info":mountTemplate("tpl-info");initInfo();break;
+        case"profile":mountTemplate("tpl-profile");initProfile();break;
+        case"events":mountTemplate("tpl-events");initEvents();break;
+        case"recommend":mountTemplate("tpl-recommend");initRecommend();break;
+        case"wellness":mountTemplate("tpl-wellness");initWellness();break;
+        case"chats":mountTemplate("tpl-chats");initChats();break;
+      }
+      stage.scrollTo({top:0,behavior:"instant"});
+    }
+
+    function setupNavigation(){
+      stage.querySelectorAll('[data-nav]').forEach(el=>{
+        el.addEventListener('click',()=>showPage(el.getAttribute('data-nav')));
+      });
+      stage.querySelectorAll('[data-link]').forEach(el=>{
+        el.addEventListener('click',()=>showPage(el.getAttribute('data-link')));
+      });
+    }
+
+    function initInfo(){
+      stage.querySelector('#add-interest').addEventListener('click',()=>{
+        let c=stage.querySelector('#interests-container');
+        let d=document.createElement('div');d.className="interest-row";
+        d.innerHTML=`<select><option>Select an option</option><option>Hiking</option><option>Yoga</option><option>Pilates</option><option>Music</option><option>Concerts</option><option>Board Games</option><option>Cooking</option><option>Wine Tasting</option><option>Photography</option><option>Meditation</option><option>Dancing</option><option>Book Club</option><option>Volunteering</option><option>Movies</option><option>Coding</option><option>Sports</option><option>Parties</option></select>
+        <button type="button" class="remove-interest">-</button>`;
+        c.appendChild(d);
+      });
+      stage.addEventListener('click',e=>{ if(e.target.classList.contains('remove-interest')) e.target.parentNode.remove(); });
+      stage.querySelectorAll('.toggle-option').forEach(el=>{
+        el.addEventListener('click',()=>{ stage.querySelectorAll('.toggle-option').forEach(o=>o.classList.remove('active')); el.classList.add('active'); userData.looking=el.innerText; });
+      });
+      stage.querySelector('#info-submit').addEventListener('click',()=>{
+        userData.name=stage.querySelector('#input-name').value;
+        userData.location=stage.querySelector('#input-location').value;
+        userData.age=stage.querySelector('#input-age').value;
+        userData.interests=[...stage.querySelectorAll('#interests-container select')].map(s=>s.value).filter(v=>v&&v!=="Select an option");
+        showPage('profile');
+      });
+    }
+
+    function initProfile(){
+      stage.querySelector('#profile-name').innerText=userData.name||"Anonymous";
+      stage.querySelector('#profile-role').innerText=(userData.location||"")+(userData.age?` | Age ${userData.age}`:"");
+      stage.querySelector('#profile-looking').innerText=userData.looking;
+      stage.querySelector('#profile-interests').innerHTML=userData.interests.map(i=>`<div class="tag">${i}</div>`).join("");
+      stage.querySelector('#profile-bio').innerText="I'm looking to connect with others via Empower.";
+      setupNavigation();
+    }
+
+    function renderEvents(f){
+      const list=stage.querySelector('#events-list');list.innerHTML="";
+      let filtered=eventsData.filter(e=>(!f.time||e.time===f.time)&&(!f.type||e.type===f.type)&&(!f.location||e.location===f.location));
+      stage.querySelector('#filter-result').innerText=filtered.length?`Showing ${filtered.length} events`:"No events found";
+      filtered.forEach(e=>{
+        list.innerHTML+=`<div class="card"><div class="icon" style="background:${e.color};">${e.icon}</div>
+          <div class="text"><h4>${e.title}</h4><p>${e.desc}</p><div class="meta">${e.time} · ${e.type} · ${e.location}</div></div></div>`;
+      });
+    }
+
+    function initEvents(){
+      renderEvents({});
+      ["time","type","location"].forEach(k=>stage.querySelector(`#filter-${k}`).addEventListener('change',()=>{
+        renderEvents({time:stage.querySelector('#filter-time').value,type:stage.querySelector('#filter-type').value,location:stage.querySelector('#filter-location').value});
+      }));
+      setupNavigation();
+    }
+
+    function getRecommendations(){
+      // Get a diverse set of recommendations based on user interests
+      let recommendations = [];
+      
+      // Add yoga/pilates if user is interested in fitness
+      if(userData.interests.some(i=>['Yoga','Pilates','Sports'].includes(i))){
+        recommendations.push({
+          title:"Morning Yoga Session",
+          desc:"Start your day with energizing flow yoga. Perfect for all levels.",
+          icon:"🧘‍♀️",
+          time:"Today at 7:00 AM",
+          location:"Online",
+          score:95
+        });
+        recommendations.push({
+          title:"Pilates Core Class",
+          desc:"Strengthen your core with guided pilates exercises.",
+          icon:"🤸‍♀️",
+          time:"This Week",
+          location:"NYC",
+          score:92
+        });
+      }
+      
+      // Add hiking if interested
+      if(userData.interests.some(i=>['Hiking','Sports'].includes(i))){
+        recommendations.push({
+          title:"Mountain Trail Hike",
+          desc:"Join us for a scenic mountain adventure with fellow hikers.",
+          icon:"🥾",
+          time:"This Month",
+          location:"LA",
+          score:98
+        });
+      }
+      
+      // Add music/concert events
+      if(userData.interests.some(i=>['Music','Concerts'].includes(i))){
+        recommendations.push({
+          title:"Live Rock Concert",
+          desc:"Experience amazing live music at Madison Square Garden.",
+          icon:"🎶",
+          time:"This Week",
+          location:"NYC",
+          score:94
+        });
+      }
+      
+      // Add wine tasting
+      if(userData.interests.some(i=>['Wine Tasting','Cooking'].includes(i))){
+        recommendations.push({
+          title:"Wine & Cheese Social",
+          desc:"Casual networking event with wine tasting and appetizers.",
+          icon:"🍷",
+          time:"This Week",
+          location:"Chicago",
+          score:88
+        });
+      }
+      
+      // Add party events
+      if(userData.interests.some(i=>['Parties','Dancing','Music'].includes(i))){
+        recommendations.push({
+          title:"Friday Night Party",
+          desc:"End the week with music, dancing, and good vibes.",
+          icon:"🎉",
+          time:"Today at 8:00 PM",
+          location:"NYC",
+          score:85
+        });
+      }
+      
+      // Add dancing events
+      if(userData.interests.some(i=>['Dancing','Music'].includes(i))){
+        recommendations.push({
+          title:"Salsa Dancing Class",
+          desc:"Learn Latin dance moves in a fun, energetic environment.",
+          icon:"💃",
+          time:"This Month",
+          location:"LA",
+          score:91
+        });
+      }
+      
+      // Add board games if interested
+      if(userData.interests.includes('Board Games')){
+        recommendations.push({
+          title:"Board Game Night",
+          desc:"Strategy games, snacks, and fun with fellow gamers.",
+          icon:"🎲",
+          time:"Today",
+          location:"Chicago",
+          score:96
+        });
+      }
+      
+      // Add meditation/wellness
+      if(userData.interests.some(i=>['Meditation','Yoga'].includes(i))){
+        recommendations.push({
+          title:"Meditation & Mindfulness",
+          desc:"Guided meditation session for stress relief and clarity.",
+          icon:"🧘",
+          time:"This Week",
+          location:"Online",
+          score:90
+        });
+      }
+      
+      // Add cooking/food events
+      if(userData.interests.includes('Cooking')){
+        recommendations.push({
+          title:"Italian Cooking Class",
+          desc:"Learn to make authentic pasta from scratch.",
+          icon:"🍳",
+          time:"This Week",
+          location:"Chicago",
+          score:87
+        });
+      }
+      
+      // Add photography
+      if(userData.interests.includes('Photography')){
+        recommendations.push({
+          title:"Night Photography Walk",
+          desc:"Capture stunning city night shots with fellow photographers.",
+          icon:"📸",
+          time:"This Week",
+          location:"Chicago",
+          score:89
+        });
+      }
+      
+      // Add book club
+      if(userData.interests.includes('Book Club')){
+        recommendations.push({
+          title:"Contemporary Fiction Book Club",
+          desc:"Monthly discussion of bestselling novels and hidden gems.",
+          icon:"📖",
+          time:"This Week",
+          location:"NYC",
+          score:86
+        });
+      }
+      
+      // Add coding/tech
+      if(userData.interests.includes('Coding')){
+        recommendations.push({
+          title:"JavaScript Workshop",
+          desc:"Learn modern JS and React basics with hands-on projects.",
+          icon:"💻",
+          time:"This Month",
+          location:"Online",
+          score:93
+        });
+      }
+      
+      // Add movies
+      if(userData.interests.includes('Movies')){
+        recommendations.push({
+          title:"Classic Movie Night",
+          desc:"Film screening and discussion of cinematic masterpieces.",
+          icon:"🎬",
+          time:"Today",
+          location:"NYC",
+          score:84
+        });
+      }
+      
+      // Add volunteering
+      if(userData.interests.includes('Volunteering')){
+        recommendations.push({
+          title:"Community Clean Up",
+          desc:"Help beautify our neighborhood parks and streets.",
+          icon:"🤝",
+          time:"Today",
+          location:"NYC",
+          score:92
+        });
+      }
+      
+      // Sort by score and return top 6
+      return recommendations.sort((a,b)=>b.score-a.score).slice(0,6);
+    }
+
+    function initRecommend(){
+      const recList = stage.querySelector('#recommendations-list');
+      const recommendations = getRecommendations();
+      
+      recList.innerHTML = recommendations.map(rec=>`
+        <div class="card">
+          <div class="match-score">${rec.score}% Match</div>
+          <div class="icon">${rec.icon}</div>
+          <div class="card-content">
+            <h3>${rec.title}</h3>
+            <p>${rec.desc}</p>
+            <div class="meta">${rec.time} • ${rec.location}</div>
+          </div>
+        </div>
+      `).join('');
+      
+      setupNavigation();
+    }
+
+    function initWellness(){
+      setupNavigation();
+    }
+
+    function initChats(){
+      setupNavigation();
+    }
+
+    showPage('info');
+  </script>
+</body>
+</html>
