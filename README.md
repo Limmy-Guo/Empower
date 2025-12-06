@@ -48,7 +48,7 @@ The core value proposition of the app. Instead of a chaotic feed, results are st
 I built Empower to explore how digital product design can solve the problem of urban isolation. This project demonstrates my ability to translate user needs into structured product requirements and functional UI.
 
 * [**LinkedIn**](https://www.linkedin.com/in/hanrui-guo/)
-* [**GitHub**](https://github.com/Hanrui-Guo)
+* [**GitHub**](https://github.com/Limmy-Guo)
 
 ---
 *Note: This project is a product prototype demonstrating UX/UI and logic flow.*
